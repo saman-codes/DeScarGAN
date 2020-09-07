@@ -15,7 +15,7 @@
 import os
 import argparse
 
-default_dataset = './dataset/warp_set/'
+default_dataset = './chexpert'
 
 def main(config):
     dataset = config.dataset
@@ -39,18 +39,13 @@ def main(config):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    #
-    #     # Training configuration.
+    data_dir = os.path.join(os.getcwd(), 'dataset')
     parser.add_argument('--dataset_path', type=str,
-                      default='/home/juliawolleb/PycharmProjects/Python_Tutorials/Reversible/Chexpert/2classes_effusion')
-                    #    default='/home/juliawolleb/PycharmProjects/Python_Tutorials/warp/warp_set')
+                       default=default_dataset)
     parser.add_argument('--dataset', type=str, default='Chexpert')
+    # parser.add_argument('--dataset', type=str, default='synthetic)
     parser.add_argument('--mode',type=str, default='train')
     parser.add_argument('--choose_net',type=str, default='./save_nets')
-
-    #
-    #
-    #
     config = parser.parse_args()
     print(config)
     main(config)

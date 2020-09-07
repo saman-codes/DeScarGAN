@@ -27,13 +27,13 @@ from torch.autograd import Variable
 viz=Visdom(port=8850)
 os.system('mkdir save_nets')
 
-try:
-    from apex.parallel import DistributedDataParallel as DDP
-    from apex.fp16_utils import *
-    from apex import amp, optimizers
-    from apex.multi_tensor_apply import multi_tensor_applier
-except ImportError:
-    raise ImportError("Please install apex from https://www.github.com/nvidia/apex to run this example.")
+# try:
+#     from apex.parallel import DistributedDataParallel as DDP
+#     from apex.fp16_utils import *
+#     from apex import amp, optimizers
+#     from apex.multi_tensor_apply import multi_tensor_applier
+# except ImportError:
+#     raise ImportError("Please install apex from https://www.github.com/nvidia/apex to run this example.")
 
 class Solver(object):
     def __init__(self,dataset_path, dataset):

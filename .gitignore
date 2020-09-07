@@ -1,0 +1,4 @@
+*.pyc
+*.ipynb
+.vscode
+chexpert

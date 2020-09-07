@@ -27,13 +27,13 @@ from skimage.filters import threshold_otsu
 from sklearn.metrics import roc_auc_score
 
 
-try:
-    from apex.parallel import DistributedDataParallel as DDP
-    from apex.fp16_utils import *
-    from apex import amp, optimizers
-    from apex.multi_tensor_apply import multi_tensor_applier
-except ImportError:
-    raise ImportError("Please install apex from https://www.github.com/nvidia/apex to run this example.")
+# try:
+#     from apex.parallel import DistributedDataParallel as DDP
+#     from apex.fp16_utils import *
+#     from apex import amp, optimizers
+#     from apex.multi_tensor_apply import multi_tensor_applier
+# except ImportError:
+#     raise ImportError("Please install apex from https://www.github.com/nvidia/apex to run this example.")
 
 id=0
 torch.cuda.set_device(id)
