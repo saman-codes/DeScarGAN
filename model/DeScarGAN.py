@@ -27,13 +27,13 @@ from torch.autograd import Variable
 viz=Visdom(port=8850)
 os.system('mkdir save_nets')
 
-# try:
-#     from apex.parallel import DistributedDataParallel as DDP
-#     from apex.fp16_utils import *
-#     from apex import amp, optimizers
-#     from apex.multi_tensor_apply import multi_tensor_applier
-# except ImportError:
-#     raise ImportError("Please install apex from https://www.github.com/nvidia/apex to run this example.")
+try:
+    from apex.parallel import DistributedDataParallel as DDP
+    from apex.fp16_utils import *
+    from apex import amp, optimizers
+    from apex.multi_tensor_apply import multi_tensor_applier
+except ImportError:
+    raise ImportError("Please install apex from https://www.github.com/nvidia/apex to run this example.")
 
 class Solver(object):
     def __init__(self,dataset_path, dataset):
@@ -73,7 +73,7 @@ class Solver(object):
 #--------------------------------------------------------------------------------------------------
         #CHOOSE HYPERPARAMETERS
 #------------------------------------------------------------------------------------------
-        batchsize=10
+        batchsize=2
         lambda_id=50
         lambda_rec=50
         lambda_gp=10
@@ -190,9 +190,10 @@ class Solver(object):
             if self.dataset=='Synthetic':
               x_real = torch.tensor(X[:, :1, :, :]).half().to(device)
             else:
-              x_real = np.transpose(np.array(X), (0, 3, 1, 2))
-              viz.image(x_real[0,0,...])
-              x_real = torch.tensor(x_real).half().to(device)
+            #   x_real = np.transpose(np.array(X), (0, 3, 1, 2))
+            #   viz.image(x_real[0,0,...])
+            #   x_real = torch.tensor(x_real).half().to(device)
+                x_real = X.half().to(device)
             noise=torch.rand(x_real.shape).to(device)
             noise2 = noise
 
