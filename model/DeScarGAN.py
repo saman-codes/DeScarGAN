@@ -24,7 +24,7 @@ from utils.Functions import  classification_loss, gradient_penalty, label2onehot
 from model.generator_discrminator import Generator, Discriminator
 from torch.autograd import Variable
 
-viz=Visdom(port=8850)
+viz=Visdom(port=8097)
 os.system('mkdir save_nets')
 
 try:

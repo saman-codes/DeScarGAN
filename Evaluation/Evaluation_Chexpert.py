@@ -18,7 +18,7 @@ import torchvision
 from visdom import Visdom
 import matplotlib.pyplot as plt
 import os
-viz=Visdom(port=8850)
+viz=Visdom(port=8097)
 from utils.tools import  npy_loader,   normalize,  kappa_score
 import torch.nn as nn
 from utils.Functions import  create_labels
