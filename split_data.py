@@ -1,7 +1,7 @@
 import pandas as pd
 import os
 import numpy as np
-import shutil 
+import shutil
 from sklearn.model_selection import train_test_split
 from PIL import Image
 
@@ -22,22 +22,24 @@ for d in ['test', 'train', 'validate']:
             if not os.path.exists(child_dir):
                 os.mkdir(child_dir)
 
-
 htrain, htest = train_test_split(healthy_df, test_size=0.1)
 htrain, hval = train_test_split(htrain, test_size=0.1)
 ptrain, ptest = train_test_split(pleu_df, test_size=0.1)
 ptrain, pval = train_test_split(ptrain, test_size=0.1)
 
+
 def img_to_npy(img_path):
     image = Image.open(img_path)
-    array = np.asarray(image)[None]
-    return array 
+    array = np.asarray(image)
+    return array
+
 
 for t in [(htrain, 'train'), (htest, 'test'), (hval, 'validate')]:
     df, directory = t
     for i in df[0].values.tolist():
         input_file = os.path.join(data_dir, '0_healthy', i)
-        target_file = os.path.join(data_dir, directory, 'healthy', os.path.splitext(i)[0]+'.npy')
+        target_file = os.path.join(data_dir, directory, 'healthy',
+                                   os.path.splitext(i)[0] + '.npy')
         # shutil.copyfile(input_file, target_file)
         array = img_to_npy(input_file)
         np.save(target_file, array)
@@ -46,7 +48,8 @@ for t in [(ptrain, 'train'), (ptest, 'test'), (pval, 'validate')]:
     df, directory = t
     for i in df[0].values.tolist():
         input_file = os.path.join(data_dir, '1_pleural_effusion', i)
-        target_file = os.path.join(data_dir, directory, 'pleural_effusion', os.path.splitext(i)[0]+'.npy')
+        target_file = os.path.join(data_dir, directory, 'pleural_effusion',
+                                   os.path.splitext(i)[0] + '.npy')
         # shutil.copyfile(input_file, target_file)
         array = img_to_npy(input_file)
         np.save(target_file, array)

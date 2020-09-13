@@ -22,18 +22,18 @@ viz=Visdom(port=8097)
 from utils.tools import  npy_loader,   normalize,  kappa_score
 import torch.nn as nn
 from utils.Functions import  create_labels
-from model.generator_discrminator import Generator, Discriminator
+from model.generator_discriminator import Generator, Discriminator
 from skimage.filters import threshold_otsu
 from sklearn.metrics import roc_auc_score
 
 
-# try:
-#     from apex.parallel import DistributedDataParallel as DDP
-#     from apex.fp16_utils import *
-#     from apex import amp, optimizers
-#     from apex.multi_tensor_apply import multi_tensor_applier
-# except ImportError:
-#     raise ImportError("Please install apex from https://www.github.com/nvidia/apex to run this example.")
+try:
+    from apex.parallel import DistributedDataParallel as DDP
+    from apex.fp16_utils import *
+    from apex import amp, optimizers
+    from apex.multi_tensor_apply import multi_tensor_applier
+except ImportError:
+    raise ImportError("Please install apex from https://www.github.com/nvidia/apex to run this example.")
 
 id=0
 torch.cuda.set_device(id)
@@ -105,7 +105,7 @@ class Solver(object):
 
         """Translate images using StarGAN trained on a single dataset."""
         netD = netD.eval()
-        total=0; correct=0; count_gesund=0; total_rec=0; total_var=0;
+        total=0; correct=0; count_healthy=0; total_rec=0; total_var=0;
         loss_metric = nn.MSELoss()
         with torch.no_grad():
             long_pred = torch.zeros(0).long()
@@ -142,7 +142,7 @@ class Solver(object):
                     text='original healthy'
                     reconstruction = loss_metric(x_fake_list[1], x_fake_list[0])
                     total_rec += reconstruction
-                    count_gesund+=1
+                    count_healthy+=1
                     diff = normalize(x_fake_list[1][0, 0, :, :]).cpu() - normalize(x_fake_list[0][0, 0, :, :]).cpu()
                     thresh = threshold_otsu(np.array(diff))
                     print(i, thresh)
@@ -186,10 +186,10 @@ class Solver(object):
             accuracy = 100 * correct / total
             auc = roc_auc_score(long_cls, long_score)
             (kappa, upper, lower) = kappa_score(long_pred, long_cls)
-            avg_rec = total_rec / count_gesund
-            avg_var = total_var / count_gesund
+            avg_rec = total_rec / count_healthy
+            avg_var = total_var / count_healthy
             
-        print('AUROC', auc, 'accuracy', accuracy, 'kappa', kappa, 'mse reconstruction error', avg_rec, 'varianz gesund', avg_var)
+        print('AUROC', auc, 'accuracy', accuracy, 'kappa', kappa, 'mse reconstruction error', avg_rec, 'varianz healthy', avg_var)
         f = open('.descargan.txt', 'w')
         f.write('auroc '+str(auc)+'\n')
         f.write('accuracy '+str(accuracy)+'\n')

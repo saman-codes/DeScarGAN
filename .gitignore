@@ -3,3 +3,6 @@
 .vscode
 chexpert
 __pycache__
+*.err
+*.out
+*.pt

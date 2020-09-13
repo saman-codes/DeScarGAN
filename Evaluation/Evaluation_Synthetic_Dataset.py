@@ -19,22 +19,22 @@ from visdom import Visdom
 import matplotlib.pyplot as plt
 import os
 from pytorch_msssim import ssim, ms_ssim, SSIM, MS_SSIM
-viz=Visdom(port=8850)
+viz=Visdom(server='10.207.1.111/24', port=8097)
 from utils.tools import  npy_loader,  normalize, visualize, eval_binary_classifier, kappa_score
 import torch.nn as nn
 from utils.Functions import classification_loss,  label2onehot, create_labels
-from model.generator_discrminator import Generator, Discriminator
+from model.generator_discriminator import Generator, Discriminator
 from skimage.filters import threshold_otsu
 from sklearn.metrics import roc_auc_score
 
 
-# try:
-#     from apex.parallel import DistributedDataParallel as DDP
-#     from apex.fp16_utils import *
-#     from apex import amp, optimizers
-#     from apex.multi_tensor_apply import multi_tensor_applier
-# except ImportError:
-#     raise ImportError("Please install apex from https://www.github.com/nvidia/apex to run this example.")
+try:
+    from apex.parallel import DistributedDataParallel as DDP
+    from apex.fp16_utils import *
+    from apex import amp, optimizers
+    from apex.multi_tensor_apply import multi_tensor_applier
+except ImportError:
+    raise ImportError("Please install apex from https://www.github.com/nvidia/apex to run this example.")
 id=0
 
 torch.cuda.set_device(id)
@@ -115,7 +115,7 @@ class Solver(object):
              total = 0; total_auc=0
              netD = netD.eval(); netG = netG.train()
              total_rec = 0;total_diff = 0; total_var=0; total_var2=0;sum_ssim=0;threshtot=0
-             count_krank = 0;count_gesund = 0
+             count_diseased = 0;count_healthy = 0
 
              for i, (X3, c_org) in enumerate(test_loader):
 
@@ -141,7 +141,7 @@ class Solver(object):
 
                  if c_org == 0:
 
-                     diff = normalize(x_fake_list[0][0, 0, :, :]).cpu() - normalize (x_fake_list[1][0, 0, :,:]).cpu()  # check whether 2 ist krank (ich glaub schon). Dann nimm immer die Differenz zwischen krank und Original
+                     diff = normalize(x_fake_list[0][0, 0, :, :]).cpu() - normalize (x_fake_list[1][0, 0, :,:]).cpu()  # check whether 2 ist diseased (ich glaub schon). Dann nimm immer die Differenz zwischen diseased und Original
 
                      thresholded_images = np.double(abs(diff) > avg_thresh)*1
                      GTthresh = np.double(abs(GT )> avg_thresh) * 1
@@ -149,10 +149,10 @@ class Solver(object):
                      varianz=diff.var()
                      total_rec += reconstruction
                      total_var+=varianz
-                     count_gesund += 1
+                     count_healthy += 1
 
                  else:
-                     diff = normalize(x_fake_list[0][0, 0, :, :]).cpu() - normalize(x_fake_list[1][0, 0, :, :]).cpu()  # check whether 2 ist krank (ich glaub schon). Dann nimm immer die Differenz zwischen krank und Original
+                     diff = normalize(x_fake_list[0][0, 0, :, :]).cpu() - normalize(x_fake_list[1][0, 0, :, :]).cpu()  # check whether 2 ist diseased (ich glaub schon). Dann nimm immer die Differenz zwischen diseased und Original
 
                      thresh = threshold_otsu(np.array(abs(diff)))
                      print(i, thresh, 2 * abs(thresh))
@@ -163,7 +163,7 @@ class Solver(object):
                      varianz2 = (normalize(np.array(GT[0, :, :])) - normalize(np.array(diff))).var()
                      total_var2 += varianz2
 
-                     count_krank += 1
+                     count_diseased += 1
                      (output_DSC, avg) = eval_binary_classifier(np.array(GTthresh[0, :, :]), thresholded_images)
                      sum_dice += output_DSC['DSC'];
                      count += 1
@@ -211,14 +211,14 @@ class Solver(object):
                      ax.title.set_text('GTthresh')
 
         accuracy= 100 * correct / total
-        avg_diff=total_diff/count_krank
-        avg_auc=total_auc/count_krank
-        avg_rec=total_rec/count_gesund
-        avg_var=total_var/count_gesund
-        avg_var2=total_var2/count_krank
-        avg_ssim=sum_ssim/count_krank
+        avg_diff=total_diff/count_diseased
+        avg_auc=total_auc/count_diseased
+        avg_rec=total_rec/count_healthy
+        avg_var=total_var/count_healthy
+        avg_var2=total_var2/count_diseased
+        avg_ssim=sum_ssim/count_diseased
         avg_dice=sum_dice/count
-        print('average mse reconstruction error', avg_rec,'average mse in segmentation', avg_diff, 'average Dice' ,avg_dice, 'classification accuracy', accuracy, 'AUROC', avg_auc, 'SSIM', avg_ssim,'varianz gesund', avg_var,'varianz krak', avg_var2 )
+        print('average mse reconstruction error', avg_rec,'average mse in segmentation', avg_diff, 'average Dice' ,avg_dice, 'classification accuracy', accuracy, 'AUROC', avg_auc, 'SSIM', avg_ssim,'varianz healthy', avg_var,'varianz krak', avg_var2 )
         f = open('./descargan.txt', 'w')
         f.write('auroc '+str(auc)+'\n')
         f.write('MSE(a_h, r_h) ' + str(avg_rec) + '\n')

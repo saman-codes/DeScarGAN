@@ -29,7 +29,7 @@ import torch.nn as nn
 import random
 import torch.optim as optim
 
-vis=Visdom()
+vis=Visdom(server='10.207.1.111/24', port=8097)
 
 def read_mha_to_numpy(file_path):
     itk_image = itk.imread(file_path)
@@ -61,9 +61,9 @@ def kappa_score(preds1, preds2):
     pr_a = (cnf[0][0] + cnf[1][1]) / n
     kappa = (pr_a - pr_e) / (1 - pr_e)
 
-    se_k = (pr_a * (1 - pr_a)) / (n * (1 - pr_e) ** 2)
-    lower = kappa - 1.96 * se_k
-    upper = kappa + 1.96 * se_k
+    se_d = (pr_a * (1 - pr_a)) / (n * (1 - pr_e) ** 2)
+    lower = kappa - 1.96 * se_d
+    upper = kappa + 1.96 * se_d
     return kappa, lower, upper
 
 
